@@ -68,4 +68,35 @@ router.post('/add', async (req, res) => {
   }
 });
 
+// UPDATE match data
+router.put('/update/:matchId', async (req, res) => {
+  const matchId = req.params.matchId;
+
+  const updateFields = {};
+  if (req.body.team_1_game_points_set_i !== undefined) {
+    updateFields.team_1_game_points_set_i = req.body.team_1_game_points_set_i;
+  }
+  if (req.body.team_2_game_points_set_i !== undefined) {
+    updateFields.team_2_game_points_set_i = req.body.team_2_game_points_set_i;
+  }
+  if (req.body.set_winner_i !== undefined) {
+    updateFields.set_winner_i = req.body.set_winner_i;
+  }
+  if (req.body.winner !== undefined) {
+    updateFields.winner = req.body.winner;
+  }
+
+  try {
+    const updatedMatch = await Match.findByIdAndUpdate(matchId, updateFields, { new: true });
+
+    if (!updatedMatch) {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
+    res.json(updatedMatch);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = router;

@@ -5,7 +5,7 @@ const cors = require('cors');
 require('dotenv').config();
 const matchRoutes = require('./routes/matchRoutes');
 const authRoutes = require('./routes/authRoutes');
-
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,6 +22,23 @@ app.use(bodyParser.json());
 app.use('/matches', matchRoutes);
 app.use('/auth', authRoutes);
 
+app.get('/local-ip', (req, res) => {
+  console.log('test')
+  const networkInterfaces = os.networkInterfaces();
+  let localIpAddress = '';
+
+  // Iterate over network interfaces to find the local IP address
+  Object.keys(networkInterfaces).forEach(interfaceName => {
+    const interfaces = networkInterfaces[interfaceName];
+    interfaces.forEach(interfaceInfo => {
+      if (interfaceInfo.family === 'IPv4' && !interfaceInfo.internal) {
+        localIpAddress = interfaceInfo.address;
+      }
+    });
+  });
+
+  res.json({ localIpAddress });
+});
 
 
 // WebSocket server
@@ -79,10 +96,10 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     const data = JSON.parse(message);
     const { type, value } = data;
-    timer = value;
     if (type == 'TIMER_UPDATE') {
       wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
+          timer = value;
           client.send(JSON.stringify({ type: 'TIMER_UPDATE', timer }));
         }
       });
