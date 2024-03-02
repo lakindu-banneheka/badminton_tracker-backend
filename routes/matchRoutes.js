@@ -2,15 +2,20 @@ const express = require('express');
 const router = express.Router();
 const Match = require('../models/match');
 
-// GET all matches
-router.get('/get', async (req, res) => {
+// GET matches with user ID
+router.get('/get/:userId', async (req, res) => {
+  const userId = req.params.userId;
   try {
-    const matches = await Match.find();
-    res.json(matches);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const matches = await Match.find({ userId: userId });
+    if (!matches){
+        res.status(404).json({ error: 'Match not found' });
+    } else {
+        res.status(200).json(matches);
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-});
+})
 
 // CREATE a new match
 router.post('/add', async (req, res) => {
@@ -47,15 +52,19 @@ router.post('/add', async (req, res) => {
     winner: req.body.winner || -1
   });
 
+  console.log(match.userId);
+
   try {
-    if(match.userId != null){      
+    if(match.userId){  
       const newMatch = await match.save();
+      console.log('tt')    
       res.status(201).json(newMatch);
     } else {
-      res.status(400).json({ error: 'user not logged in' });
+      res.status(404).json({ error: 'User not found' });
     }
   } catch (err) {
     res.status(400).json({ message: err.message });
+    console.log(err)
   }
 });
 

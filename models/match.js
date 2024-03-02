@@ -47,7 +47,7 @@ const matchSchema = new mongoose.Schema({
   },
   team1_name: {
     type: String,
-    required: true
+    // required: true
   },
   team1_player1_name: {
     type: String,
@@ -66,7 +66,7 @@ const matchSchema = new mongoose.Schema({
   },
   team2_name: {
     type: String,
-    required: true
+    // required: true
   },
   team2_player1_name: {
     type: String,
